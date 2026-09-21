@@ -64,3 +64,26 @@ class SkillLevelTests(TestCase):
         self.client.login(username="u", password="x")
         self.client.post(reverse("profile"), {"skill_id": self.skill.pk, "level": "6"})
         self.assertFalse(SkillLevel.objects.filter(user=self.user, skill=self.skill).exists())
+
+    def test_add_requires_min_one_star(self):
+        self.client.login(username="u", password="x")
+        self.client.post(
+            reverse("profile"),
+            {"action": "add", "skill_id": self.skill.pk, "level": "1"},
+        )
+        self.assertEqual(SkillLevel.objects.get(user=self.user, skill=self.skill).level, 1)
+
+    def test_level_zero_not_kept(self):
+        self.client.login(username="u", password="x")
+        SkillLevel.objects.create(user=self.user, skill=self.skill, level=3)
+        self.client.post(reverse("profile"), {"skill_id": self.skill.pk, "level": "0"})
+        self.assertFalse(SkillLevel.objects.filter(user=self.user, skill=self.skill).exists())
+
+    def test_remove_deletes_skill(self):
+        self.client.login(username="u", password="x")
+        SkillLevel.objects.create(user=self.user, skill=self.skill, level=3)
+        self.client.post(
+            reverse("profile"),
+            {"action": "remove", "skill_id": self.skill.pk},
+        )
+        self.assertFalse(SkillLevel.objects.filter(user=self.user, skill=self.skill).exists())

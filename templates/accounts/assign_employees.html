@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Assigner des employés</h1>
+  <p class="muted">Les utilisateurs ci-dessous n'ont pas encore de manager. Assignez-les à votre équipe.</p>
+
+  {% if users %}
+    <table>
+      <tr><th>Utilisateur</th><th>Email</th><th></th></tr>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.get_full_name|default:u.username }}</td>
+          <td class="muted">{{ u.email }}</td>
+          <td>
+            <form method="post" style="display:inline">
+              {% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ u.pk }}">
+              <button type="submit" class="btn small">Assigner à moi</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="muted">Aucun utilisateur non assigné.</p>
+  {% endif %}
+{% endblock %}

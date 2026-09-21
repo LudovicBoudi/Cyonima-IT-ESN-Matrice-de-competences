@@ -17,11 +17,11 @@
         <label for="s{{ skill.id }}-1" title="1"></label>
       </div>
     </form>
-    <form method="post" class="clear-form">
+    <form method="post" class="remove-form">
       {% csrf_token %}
       <input type="hidden" name="skill_id" value="{{ skill.id }}">
-      <input type="hidden" name="level" value="0">
-      <button type="submit" class="btn small secondary" title="Effacer" {% if level == 0 %}disabled{% endif %}>×</button>
+      <input type="hidden" name="action" value="remove">
+      <button type="submit" class="btn small danger" title="Retirer">×</button>
     </form>
   {% else %}
     <span class="muted">Niveau : {{ level }} / 5</span>

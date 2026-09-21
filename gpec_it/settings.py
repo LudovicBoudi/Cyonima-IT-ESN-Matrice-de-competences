@@ -70,6 +70,15 @@ TEMPLATES = [
     },
 ]
 
+if DEBUG:
+    # En dev, on désactive le cache de templates (cached.Loader par défaut
+    # en Django 6.1) pour recharger les templates à chaud sans redémarrer.
+    TEMPLATES[0]['APP_DIRS'] = False
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    ]
+
 WSGI_APPLICATION = 'gpec_it.wsgi.application'
 
 

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from accounts.mixins import AdminRequiredMixin, ManagerRequiredMixin
@@ -20,6 +20,13 @@ def _can_access_profile(viewer, target):
     if viewer.is_manager_role and target.manager_id == viewer.id:
         return True
     return False
+
+
+def _profile_redirect(pk, cat_id=None):
+    url = reverse("profile_user", kwargs={"pk": pk})
+    if cat_id:
+        url += f"?cat={cat_id}"
+    return redirect(url)
 
 
 @login_required
@@ -44,38 +51,58 @@ def profile(request, pk=None):
     can_edit = _can_access_profile(request.user, target)
 
     if request.method == "POST" and can_edit:
+        action = request.POST.get("action", "set")
         skill = get_object_or_404(Skill, pk=request.POST.get("skill_id"))
+
+        if action == "remove":
+            SkillLevel.objects.filter(user=target, skill=skill).delete()
+            messages.success(request, f"{skill.name} retirée du profil.")
+            return _profile_redirect(target.pk, skill.category_id)
+
         form = SkillLevelForm(request.POST)
         if form.is_valid():
-            SkillLevel.objects.update_or_create(
-                user=target,
-                skill=skill,
-                defaults={"level": form.cleaned_data["level"]},
-            )
-            if request.headers.get("x-requested-with") == "XMLHttpRequest":
-                return render(
-                    request,
-                    "partials/star_row.html",
-                    {"skill": skill, "level": form.cleaned_data["level"]},
+            level = form.cleaned_data["level"]
+            if level >= 1:
+                SkillLevel.objects.update_or_create(
+                    user=target,
+                    skill=skill,
+                    defaults={"level": level},
                 )
-            messages.success(request, f"Niveau mis à jour pour {skill.name}.")
-            return redirect("profile_user", pk=target.pk)
+                messages.success(request, f"{skill.name} : niveau {level}/5.")
+            else:
+                SkillLevel.objects.filter(user=target, skill=skill).delete()
+                messages.success(request, f"{skill.name} retirée du profil.")
+        else:
+            messages.error(request, "Niveau invalide (1 à 5 requis).")
+        return _profile_redirect(target.pk, skill.category_id)
+
+    selected_cat_id = None
+    try:
+        selected_cat_id = int(request.GET.get("cat"))
+    except (TypeError, ValueError):
+        selected_cat_id = None
 
     categories = Category.objects.prefetch_related("skills").all()
-    levels = {
-        sl.skill_id: sl.level
-        for sl in target.skill_levels.select_related("skill").all()
-    }
+    selected = target.skill_levels.filter(level__gte=1).select_related("skill")
 
-    categories_data = [
-        (category, [(skill, levels.get(skill.id, 0)) for skill in category.skills.all()])
-        for category in categories
-    ]
+    selected_by_category = {}
+    for sl in selected:
+        selected_by_category.setdefault(sl.skill.category_id, []).append(
+            (sl.skill, sl.level)
+        )
+
+    categories_data = []
+    for category in categories:
+        sel = sorted(selected_by_category.get(category.id, []), key=lambda x: x[0].name)
+        sel_ids = {skill.id for skill, _ in sel}
+        available = [s for s in category.skills.all() if s.id not in sel_ids]
+        categories_data.append((category, sel, available))
 
     context = {
         "target": target,
         "can_edit": can_edit,
         "categories_data": categories_data,
+        "selected_cat_id": selected_cat_id,
     }
     return render(request, "profile.html", context)
 

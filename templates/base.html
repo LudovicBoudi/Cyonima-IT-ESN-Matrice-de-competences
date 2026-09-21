@@ -72,7 +72,51 @@
     .btn.danger { background: #7a3030; }
     .btn.small { padding: 0.2rem 0.5rem; font-size: 0.8rem; }
 
+    .tabs { display: flex; flex-wrap: wrap; gap: 0.3rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .category-selector { margin-bottom: 1.5rem; }
+    .category-selector label { color: var(--muted); margin-right: 0.5rem; }
+    .category-selector select {
+      padding: 0.5rem 0.75rem;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.95rem;
+      min-width: 260px;
+    }
+
     .category-block { margin-bottom: 2rem; }
+    .add-skill {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+    }
+    .add-skill select {
+      padding: 0.45rem 0.5rem;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      min-width: 240px;
+    }
     .category-block h2 { font-size: 1.05rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
     .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
     .skill-row .name { flex: 1; }
@@ -103,6 +147,9 @@
         {% if user.is_manager_role or user.is_admin_role %}
           <div class="section">Management</div>
           <a href="{% url 'employee_list' %}">Mes collaborateurs</a>
+          {% if user.is_manager_role %}
+            <a href="{% url 'assign_employees' %}">Assigner des employés</a>
+          {% endif %}
         {% endif %}
         {% if user.is_admin_role %}
           <div class="section">Administration</div>

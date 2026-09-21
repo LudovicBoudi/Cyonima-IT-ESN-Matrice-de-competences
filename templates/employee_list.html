@@ -2,6 +2,9 @@
 
 {% block content %}
   <h1>Mes collaborateurs</h1>
+  {% if user.is_manager_role %}
+    <p><a class="btn secondary" href="{% url 'assign_employees' %}">Assigner des employés</a></p>
+  {% endif %}
   {% if employees %}
     <table>
       <tr><th>Utilisateur</th><th>Email</th><th>Compétences évaluées</th><th></th></tr>

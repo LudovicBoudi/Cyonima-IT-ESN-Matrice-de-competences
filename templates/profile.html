@@ -4,12 +4,52 @@
   <h1>Profil de {{ target.get_full_name|default:target.username }}</h1>
   <p class="muted">{{ target.get_role_display }}{% if target.manager %} — manager : {{ target.manager }}{% endif %}</p>
 
-  {% for category, skills_data in categories_data %}
-    <div class="category-block">
-      <h2>{{ category.name }}</h2>
-      {% for skill, level in skills_data %}
-        {% include "partials/star_row.html" with skill=skill level=level %}
+  <div class="category-selector">
+    <label for="category-select">Catégorie :</label>
+    <select id="category-select">
+      {% for category, selected, available in categories_data %}
+        <option value="cat-{{ category.id }}" {% if category.id == selected_cat_id %}selected{% endif %}>
+          {{ category.name }} ({{ selected|length }})
+        </option>
       {% endfor %}
+    </select>
+  </div>
+
+  {% for category, selected, available in categories_data %}
+    <div class="tab-panel {% if category.id == selected_cat_id or not selected_cat_id and forloop.first %}active{% endif %}" id="cat-{{ category.id }}">
+      <h2>{{ category.name }}</h2>
+
+      {% for skill, level in selected %}
+        {% include "partials/star_row.html" with skill=skill level=level %}
+      {% empty %}
+        <p class="muted">Aucune compétence dans cette catégorie.</p>
+      {% endfor %}
+
+      {% if can_edit and available %}
+        <form method="post" class="add-skill">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          <select name="skill_id" required>
+            <option value="" selected disabled>Ajouter une compétence…</option>
+            {% for skill in available %}
+              <option value="{{ skill.id }}">{{ skill.name }}</option>
+            {% endfor %}
+          </select>
+          <div class="rating add-rating">
+            <input type="radio" name="level" id="add-{{ category.id }}-5" value="5">
+            <label for="add-{{ category.id }}-5" title="5"></label>
+            <input type="radio" name="level" id="add-{{ category.id }}-4" value="4">
+            <label for="add-{{ category.id }}-4" title="4"></label>
+            <input type="radio" name="level" id="add-{{ category.id }}-3" value="3">
+            <label for="add-{{ category.id }}-3" title="3"></label>
+            <input type="radio" name="level" id="add-{{ category.id }}-2" value="2">
+            <label for="add-{{ category.id }}-2" title="2"></label>
+            <input type="radio" name="level" id="add-{{ category.id }}-1" value="1" checked>
+            <label for="add-{{ category.id }}-1" title="1"></label>
+          </div>
+          <button type="submit" class="btn">Ajouter</button>
+        </form>
+      {% endif %}
     </div>
   {% endfor %}
 {% endblock %}
@@ -20,6 +60,11 @@ document.querySelectorAll('.rating-form input[type=radio]').forEach(function (ra
   radio.addEventListener('change', function () {
     this.closest('form').submit();
   });
+});
+
+document.getElementById('category-select').addEventListener('change', function () {
+  document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+  document.getElementById(this.value).classList.add('active');
 });
 </script>
 {% endblock %}
