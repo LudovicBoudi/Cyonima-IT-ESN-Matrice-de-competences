@@ -1,0 +1,29 @@
+<div class="skill-row" id="skill-row-{{ skill.id }}">
+  <span class="name">{{ skill.name }}</span>
+  {% if can_edit %}
+    <form method="post" class="rating-form">
+      {% csrf_token %}
+      <input type="hidden" name="skill_id" value="{{ skill.id }}">
+      <div class="rating">
+        <input type="radio" name="level" id="s{{ skill.id }}-5" value="5" {% if level == 5 %}checked{% endif %}>
+        <label for="s{{ skill.id }}-5" title="5"></label>
+        <input type="radio" name="level" id="s{{ skill.id }}-4" value="4" {% if level == 4 %}checked{% endif %}>
+        <label for="s{{ skill.id }}-4" title="4"></label>
+        <input type="radio" name="level" id="s{{ skill.id }}-3" value="3" {% if level == 3 %}checked{% endif %}>
+        <label for="s{{ skill.id }}-3" title="3"></label>
+        <input type="radio" name="level" id="s{{ skill.id }}-2" value="2" {% if level == 2 %}checked{% endif %}>
+        <label for="s{{ skill.id }}-2" title="2"></label>
+        <input type="radio" name="level" id="s{{ skill.id }}-1" value="1" {% if level == 1 %}checked{% endif %}>
+        <label for="s{{ skill.id }}-1" title="1"></label>
+      </div>
+    </form>
+    <form method="post" class="clear-form">
+      {% csrf_token %}
+      <input type="hidden" name="skill_id" value="{{ skill.id }}">
+      <input type="hidden" name="level" value="0">
+      <button type="submit" class="btn small secondary" title="Effacer" {% if level == 0 %}disabled{% endif %}>×</button>
+    </form>
+  {% else %}
+    <span class="muted">Niveau : {{ level }} / 5</span>
+  {% endif %}
+</div>

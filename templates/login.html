@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connexion — GPEC-IT</title>
+  <style>
+    :root { --bg:#121417; --panel:#1c1f24; --border:#2a2e35; --text:#e6e8eb; --muted:#9aa0a6; --accent:#4f8cff; }
+    body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg); color:var(--text); font-family:system-ui,sans-serif; }
+    .box { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:2rem; width:340px; }
+    h1 { margin-top:0; font-size:1.3rem; color:var(--accent); }
+    .form-group { margin-bottom:1rem; }
+    label { display:block; margin-bottom:0.3rem; color:var(--muted); font-size:0.85rem; }
+    input { width:100%; padding:0.5rem; background:var(--panel); border:1px solid var(--border); border-radius:6px; color:var(--text); }
+    .btn { width:100%; padding:0.55rem; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; }
+    .errorlist { color:#ff8080; list-style:none; padding:0; margin:0 0 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>GPEC-IT</h1>
+    {% if form.errors %}
+      <ul class="errorlist"><li>Identifiants invalides.</li></ul>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_username">Nom d'utilisateur</label>
+        <input type="text" name="username" id="id_username" autofocus required>
+      </div>
+      <div class="form-group">
+        <label for="id_password">Mot de passe</label>
+        <input type="password" name="password" id="id_password" required>
+      </div>
+      <button type="submit" class="btn">Se connecter</button>
+    </form>
+  </div>
+</body>
+</html>

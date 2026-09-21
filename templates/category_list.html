@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Catégories</h1>
+  <p><a class="btn" href="{% url 'category_create' %}">Ajouter une catégorie</a></p>
+  <table>
+    <tr><th>Nom</th><th>Slug</th><th>Compétences</th><th></th></tr>
+    {% for c in categories %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td class="muted">{{ c.slug }}</td>
+        <td>{{ c.skills.count }}</td>
+        <td>
+          <a class="btn small" href="{% url 'category_update' c.pk %}">Éditer</a>
+          <a class="btn small danger" href="{% url 'category_delete' c.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Tableau de bord</h1>
+  <p class="muted">Connecté en tant que {{ user.get_full_name|default:user.username }} ({{ user.get_role_display }}).</p>
+
+  {% if user.is_admin_role %}
+    <table>
+      <tr><th>Indicateur</th><th>Valeur</th></tr>
+      <tr><td>Catégories</td><td>{{ categories_count }}</td></tr>
+      <tr><td>Compétences</td><td>{{ skills_count }}</td></tr>
+      <tr><td>Utilisateurs</td><td>{{ users_count }}</td></tr>
+    </table>
+  {% endif %}
+
+  {% if user.is_manager_role %}
+    <h2>Mes collaborateurs</h2>
+    {% if employees %}
+      <table>
+        <tr><th>Utilisateur</th><th></th></tr>
+        {% for e in employees %}
+          <tr>
+            <td>{{ e.get_full_name|default:e.username }}</td>
+            <td><a class="btn small" href="{% url 'profile_user' e.pk %}">Voir le profil</a></td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="muted">Aucun collaborateur assigné.</p>
+    {% endif %}
+  {% endif %}
+
+  {% if user.role == "user" %}
+    <p><a class="btn" href="{% url 'profile' %}">Voir mon profil de compétences</a></p>
+  {% endif %}
+{% endblock %}

@@ -8,10 +8,12 @@
     :root {
       --bg: #121417;
       --panel: #1c1f24;
+      --panel-2: #23262c;
       --border: #2a2e35;
       --text: #e6e8eb;
       --muted: #9aa0a6;
       --accent: #4f8cff;
+      --star: #ffc107;
     }
     * { box-sizing: border-box; }
     body {
@@ -20,6 +22,8 @@
       background: var(--bg);
       color: var(--text);
     }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
     .layout { display: flex; min-height: 100vh; }
     .sidebar {
       width: 240px;
@@ -27,34 +31,64 @@
       border-right: 1px solid var(--border);
       padding: 1.25rem 1rem;
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
     }
-    .sidebar .brand {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: var(--accent);
-    }
+    .sidebar .brand { font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent); }
+    .sidebar nav { display: flex; flex-direction: column; gap: 0.25rem; }
     .sidebar nav a {
       display: block;
       padding: 0.5rem 0.75rem;
       color: var(--text);
-      text-decoration: none;
       border-radius: 6px;
-      margin-bottom: 0.25rem;
     }
-    .sidebar nav a:hover { background: var(--border); }
-    .content { flex: 1; padding: 2rem; }
+    .sidebar nav a:hover { background: var(--border); text-decoration: none; }
+    .sidebar .section { margin-top: 1rem; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sidebar .spacer { flex: 1; }
+    .content { flex: 1; padding: 2rem; max-width: 1100px; }
     h1 { margin-top: 0; }
-    a { color: var(--accent); }
     .muted { color: var(--muted); }
-    .cards { display: flex; gap: 1rem; margin-bottom: 2rem; }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.5rem;
+    .messages { list-style: none; padding: 0; margin: 0 0 1rem; }
+    .messages li { padding: 0.6rem 0.9rem; border-radius: 6px; margin-bottom: 0.5rem; background: var(--panel-2); border: 1px solid var(--border); }
+    .messages li.success { border-color: #2f6b3f; }
+    .messages li.error { border-color: #7a3030; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+    tr:hover td { background: var(--panel-2); }
+
+    .btn {
+      display: inline-block;
+      padding: 0.45rem 0.9rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
     }
-    .card .num { font-size: 1.75rem; font-weight: 700; }
+    .btn.secondary { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); }
+    .btn.danger { background: #7a3030; }
+    .btn.small { padding: 0.2rem 0.5rem; font-size: 0.8rem; }
+
+    .category-block { margin-bottom: 2rem; }
+    .category-block h2 { font-size: 1.05rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+    .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
+    .skill-row .name { flex: 1; }
+
+    .rating { display: inline-flex; flex-direction: row-reverse; gap: 0.15rem; }
+    .rating input { display: none; }
+    .rating label { color: #3a3f46; font-size: 1.5rem; cursor: pointer; transition: color 0.1s; }
+    .rating label::before { content: "\2605"; }
+    .rating input:checked ~ label { color: var(--star); }
+    .rating:hover input:not(:checked) ~ label:hover { color: var(--star); }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.3rem; color: var(--muted); }
+    .form-group input, .form-group select { width: 100%; padding: 0.5rem; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+    .helptext { color: var(--muted); font-size: 0.8rem; }
+    .errorlist { color: #ff8080; list-style: none; padding: 0; margin: 0.3rem 0; }
   </style>
 </head>
 <body>
@@ -62,13 +96,44 @@
     <aside class="sidebar">
       <div class="brand">GPEC-IT</div>
       <nav>
-        <a href="{% url 'home' %}">Accueil</a>
-        <a href="{% url 'admin:index' %}">Administration</a>
+        <a href="{% url 'home' %}">Tableau de bord</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}">Mon profil</a>
+        {% endif %}
+        {% if user.is_manager_role or user.is_admin_role %}
+          <div class="section">Management</div>
+          <a href="{% url 'employee_list' %}">Mes collaborateurs</a>
+        {% endif %}
+        {% if user.is_admin_role %}
+          <div class="section">Administration</div>
+          <a href="{% url 'category_list' %}">Catégories</a>
+          <a href="{% url 'skill_list' %}">Compétences</a>
+          <a href="{% url 'user_list' %}">Utilisateurs</a>
+        {% endif %}
+      </nav>
+      <div class="spacer"></div>
+      <nav>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn secondary" style="width:100%">Déconnexion</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}">Connexion</a>
+        {% endif %}
       </nav>
     </aside>
     <main class="content">
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
       {% block content %}{% endblock %}
     </main>
   </div>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Utilisateurs</h1>
+  <p><a class="btn" href="{% url 'user_create' %}">Ajouter un utilisateur</a></p>
+  <table>
+    <tr><th>Nom d'utilisateur</th><th>Nom</th><th>Rôle</th><th>Manager</th><th>Actif</th><th></th></tr>
+    {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ u.get_full_name }}</td>
+        <td>{{ u.get_role_display }}</td>
+        <td class="muted">{{ u.manager|default:"—" }}</td>
+        <td>{% if u.is_active %}Oui{% else %}Non{% endif %}</td>
+        <td>
+          <a class="btn small" href="{% url 'user_update' u.pk %}">Éditer</a>
+          <a class="btn small danger" href="{% url 'user_delete' u.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

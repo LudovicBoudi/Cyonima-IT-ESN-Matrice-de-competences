@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Profil de {{ target.get_full_name|default:target.username }}</h1>
+  <p class="muted">{{ target.get_role_display }}{% if target.manager %} — manager : {{ target.manager }}{% endif %}</p>
+
+  {% for category, skills_data in categories_data %}
+    <div class="category-block">
+      <h2>{{ category.name }}</h2>
+      {% for skill, level in skills_data %}
+        {% include "partials/star_row.html" with skill=skill level=level %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.rating-form input[type=radio]').forEach(function (radio) {
+  radio.addEventListener('change', function () {
+    this.closest('form').submit();
+  });
+});
+</script>
+{% endblock %}

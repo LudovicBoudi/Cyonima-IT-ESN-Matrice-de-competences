@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Mes collaborateurs</h1>
+  {% if employees %}
+    <table>
+      <tr><th>Utilisateur</th><th>Email</th><th>Compétences évaluées</th><th></th></tr>
+      {% for e in employees %}
+        <tr>
+          <td>{{ e.get_full_name|default:e.username }}</td>
+          <td>{{ e.email }}</td>
+          <td>{{ e.skill_levels.count }}</td>
+          <td><a class="btn small" href="{% url 'profile_user' e.pk %}">Voir / éditer</a></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="muted">Aucun collaborateur assigné.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Compétences</h1>
+  <p><a class="btn" href="{% url 'skill_create' %}">Ajouter une compétence</a></p>
+  <table>
+    <tr><th>Nom</th><th>Catégorie</th><th></th></tr>
+    {% for s in skills %}
+      <tr>
+        <td>{{ s.name }}</td>
+        <td class="muted">{{ s.category.name }}</td>
+        <td>
+          <a class="btn small" href="{% url 'skill_update' s.pk %}">Éditer</a>
+          <a class="btn small danger" href="{% url 'skill_delete' s.pk %}">Supprimer</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  {% if is_paginated %}
+    <p class="muted">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">&laquo; Précédent</a>{% endif %}
+      Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Suivant &raquo;</a>{% endif %}
+    </p>
+  {% endif %}
+{% endblock %}
