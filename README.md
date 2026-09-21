@@ -4,8 +4,6 @@ Application web de gestion des compétences pour les managers d'ESN/SSII/ICT.
 Elle permet aux employés de **s'auto-évaluer** sur leurs compétences, et aux
 managers de consulter et gérer les profils de leurs collaborateurs.
 
-L'application remplace un suivi historique réalisé dans un tableur Excel devenu
-illisible au fil du temps.
 
 ---
 
