@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Matrice de compétences</h1>
+  <div class="cards">
+    <div class="card">
+      <div class="num">{{ category_count }}</div>
+      <div class="muted">Catégories</div>
+    </div>
+    <div class="card">
+      <div class="num">{{ skill_count }}</div>
+      <div class="muted">Compétences</div>
+    </div>
+  </div>
+
+  {% for category in categories %}
+    <h2>{{ category.name }}</h2>
+    <p class="muted">
+      {% for skill in category.skills.all %}{{ skill.name }}{% if not forloop.last %} · {% endif %}{% endfor %}
+    </p>
+  {% endfor %}
+{% endblock %}
